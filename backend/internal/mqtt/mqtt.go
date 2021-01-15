@@ -22,11 +22,9 @@ func Setup(clientID, host string, wsClient *websocket.Client) (MQTT.Client, erro
 			messageType = 3
 		}
 
-		if message.Topic() == config.SensorTemperatureTopic {
-			wsClient.Pool.Broadcast <- websocket.Message{
-				Type: messageType,
-				Body: string(message.Payload()),
-			}
+		wsClient.Pool.Broadcast <- websocket.Message{
+			Type: messageType,
+			Body: string(message.Payload()),
 		}
 	}
 

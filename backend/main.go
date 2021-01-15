@@ -20,6 +20,8 @@ func setupReceiveDataFromSensor(pool *websocket.Pool) (*MQTT.Client, error) {
 	}
 
 	mqtt.Subscribe(c, config.SensorTemperatureTopic)
+	mqtt.Subscribe(c, config.SensorHumidityTopic)
+
 	return &c, err
 }
 
@@ -51,6 +53,10 @@ func main() {
 	wg.Wait()
 
 	if _, err := mqtt.Unsubscribe(*mqttClient, config.SensorTemperatureTopic); err != nil {
+		log.Println(err)
+	}
+
+	if _, err := mqtt.Unsubscribe(*mqttClient, config.SensorHumidityTopic); err != nil {
 		log.Println(err)
 	}
 
