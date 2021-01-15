@@ -25,11 +25,15 @@ func setupReceiveDataFromSensor(pool *websocket.Pool) (*MQTT.Client, error) {
 	return &c, err
 }
 
+func init() {
+	log.SetFlags(log.Lshortfile)
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
+
 func main() {
 	log.Println("Application is started...")
 	defer log.Println("Application is shutting down...")
 
-	runtime.GOMAXPROCS(2)
 	var wg sync.WaitGroup
 	wg.Add(2)
 
