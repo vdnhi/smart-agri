@@ -1,2 +1,3 @@
-.PHONY: run
+.PHONY: Running application
+run:
 	go run main.go
