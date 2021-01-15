@@ -74,3 +74,9 @@ button:focus {
 .hot {
 	background: #ff5200;
 }
+
+.app-realtime {
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+}
