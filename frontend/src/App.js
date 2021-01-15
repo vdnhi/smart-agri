@@ -56,7 +56,7 @@ class App extends React.Component {
       humidity
     } = this.state;
     return (
-      <div>
+      <div className="app-realtime">
         <div className="app-container">
           <div className="temperature-display-container">
             <div className={`temperature-display ${temperatureColor}`}>{temperature}°C</div>
