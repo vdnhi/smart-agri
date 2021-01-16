@@ -1,5 +1,6 @@
-#include <WiFi.h>
 #include <PubSubClient.h>
+#include <ArduinoJson.h>
+#include <WiFi.h>
 #include <DHT.h>
 
 #define DHTPIN 26
@@ -14,13 +15,15 @@ PubSubClient client(espClient);
 DHT dht(DHTPIN, DHTTYPE);
 
 long lastMsg = 0;
-char msg[50];
 
 float temperature = 0;
 float humidity = 0;
 
 float last_temp = 0;
 float last_humd = 0;
+
+char msg[200];
+StaticJsonDocument<200> json_data;
 
 void setup() {
   Serial.begin(115200);
@@ -112,20 +115,12 @@ void loop() {
       return;
     }
 
-    if (temperature != last_temp) {
-      dtostrf(temperature, 1, 2, msg);
-      Serial.print("Temperature: ");
-      Serial.println(msg);
-      client.publish("sensor-data/temperature", msg);
-      last_temp = temperature;
-    }
+    json_data["temp"] = temperature;
+    json_data["humd"] = humidity;
     
-    if (humidity != last_humd) {
-      dtostrf(humidity, 1, 2, msg);
-      Serial.print("Humidity: ");
-      Serial.println(humidity);
-      client.publish("sensor-data/humidity", msg);  
-      last_humd = humidity;
-    }
+    serializeJson(json_data, msg);
+
+    client.publish("sensor-data", msg);
+    Serial.println(msg);
   }
 }

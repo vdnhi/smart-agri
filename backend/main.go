@@ -1,14 +1,15 @@
 package main
 
 import (
+	"log"
+	"runtime"
+	"sync"
+
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/nomisrevol/iot-backend/api"
 	"github.com/nomisrevol/iot-backend/config"
 	"github.com/nomisrevol/iot-backend/internal/mqtt"
 	"github.com/nomisrevol/iot-backend/internal/websocket"
-	"log"
-	"runtime"
-	"sync"
 )
 
 func setupReceiveDataFromSensor(pool *websocket.Pool) (*MQTT.Client, error) {
@@ -26,7 +27,7 @@ func setupReceiveDataFromSensor(pool *websocket.Pool) (*MQTT.Client, error) {
 }
 
 func init() {
-	log.SetFlags(log.Lshortfile)
+	log.SetFlags(log.Lshortfile | log.Ltime | log.LstdFlags)
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
