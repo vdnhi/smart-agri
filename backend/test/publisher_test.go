@@ -21,6 +21,6 @@ func TestPublishData(t *testing.T) {
 
 	for i := 0; i < 10; i++ {
 		log.Println("Publishing the data at: ", i)
-		mqtt.Publish(c, config.SensorTemperatureTopic, "abcdef")
+		mqtt.Publish(c, config.SensorTopic, "abcdef")
 	}
 }

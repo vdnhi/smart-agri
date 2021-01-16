@@ -2,29 +2,29 @@ package mqtt
 
 import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/nomisrevol/iot-backend/config"
 	"github.com/nomisrevol/iot-backend/internal/websocket"
+	"github.com/nomisrevol/iot-backend/utils"
 	"log"
 )
 
 func Setup(clientID, host string, wsClient *websocket.Client) (MQTT.Client, error) {
 	opts := MQTT.NewClientOptions().AddBroker(host).SetClientID(clientID)
 
-	var publishHandler MQTT.MessageHandler = func(client MQTT.Client, message MQTT.Message) {
-		log.Printf("[DEBUG] Received message %s of topic: %s", message.Payload(), message.Topic())
-		Publish(client, config.DeviceTopic, string(message.Payload()))
+	var previousTemp float32 = 0.0
+	var previousHumd float32 = 0.0
 
-		messageType := 1
-		switch message.Topic() {
-		case config.SensorTemperatureTopic:
-			messageType = 2
-		case config.SensorHumidityTopic:
-			messageType = 3
+	var publishHandler MQTT.MessageHandler = func(client MQTT.Client, message MQTT.Message) {
+		shouldBroadcast, err := utils.HandleNewSensorData(&previousTemp, &previousHumd, string(message.Payload()))
+		if err != nil {
+			log.Println(err)
+			return
 		}
 
-		wsClient.Pool.Broadcast <- websocket.Message{
-			Type: messageType,
-			Body: string(message.Payload()),
+		if shouldBroadcast {
+			wsClient.Pool.Broadcast <- websocket.Message{
+				Type: 2,
+				Body: string(message.Payload()),
+			}
 		}
 	}
 

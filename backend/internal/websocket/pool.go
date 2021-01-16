@@ -1,6 +1,10 @@
 package websocket
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/nomisrevol/iot-backend/utils"
+	"log"
+)
 
 type Pool struct {
 	Register   chan *Client
@@ -19,28 +23,28 @@ func NewPool() *Pool {
 }
 
 func (pool *Pool) Start() {
+	lastMsg := Message{}
 	for {
 		select {
 		case client := <-pool.Register:
 			pool.Clients[client] = true
-			fmt.Println("Size of Connection Pool: ", len(pool.Clients))
+			for i := 0; i < 10 && len(client.ID) == 0; i++ {
+				client.ID, _ = utils.GetRandomClientId()
+			}
+			log.Println("New client just come with id =", client.ID)
 			for client, _ := range pool.Clients {
-				fmt.Println(client)
-				client.Conn.WriteJSON(Message{
-					Type: 1,
-					Body: "New User Joined...",
-				})
+				client.Conn.WriteJSON(lastMsg)
 			}
 			break
+
 		case client := <-pool.Unregister:
 			delete(pool.Clients, client)
-			fmt.Println("Size of Connection Pool:", len(pool.Clients))
-			for client, _ := range pool.Clients {
-				client.Conn.WriteJSON(Message{Type: 1, Body: "User Disconnected..."})
-			}
+			log.Printf("Client %s closed connection\n", client.ID)
 			break
+
 		case message := <-pool.Broadcast:
-			fmt.Println("Sending message to all clients in Pool")
+			log.Println("Broadcasting new data: ", message)
+			lastMsg = message
 			for client, _ := range pool.Clients {
 				if err := client.Conn.WriteJSON(message); err != nil {
 					fmt.Println(err)
