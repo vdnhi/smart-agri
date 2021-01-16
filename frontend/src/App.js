@@ -17,31 +17,19 @@ class App extends React.Component {
     connect((message) => {
       const jsonData = JSON.parse(message.data);
       // only update when type is 2 - update with value from sensor
-      const dataType = parseInt(jsonData["type"]);
-      if (dataType > 1) {
-        const newData = parseFloat(jsonData["body"]).toFixed(2);
-        switch (dataType) {
-          case 2:
-            let newTemperatureColor = "neutral";
-            if (newData >= 27) {
-              newTemperatureColor = "hot";
-            } else if (newData <= 15) {
-              newTemperatureColor = "cold";
-            }
-            this.setState({
-              temperature: newData,
-              temperatureColor: newTemperatureColor
-            })
-            break;
-          case 3:
-            this.setState({
-              humidity: newData
-            });
-            break;
-          default:
-            break;
-        }
+      if (parseInt(jsonData["type"]) !== 2) return;
+      const newData = JSON.parse(jsonData["body"]);
+      let newTemperatureColor = "neutral";
+      if (newData["temp"] >= 27) {
+        newTemperatureColor = "hot";
+      } else if (newTemperatureColor["temp"] <= 15) {
+        newTemperatureColor = "cold";
       }
+      this.setState({
+        temperature: newData["temp"],
+        humidity: newData["humd"],
+        temperatureColor: newTemperatureColor
+      });
     });
   }
 
