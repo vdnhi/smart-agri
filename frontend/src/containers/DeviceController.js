@@ -1,17 +1,24 @@
-import { useEffect, useState, useCallback } from "react";
+import {useCallback, useEffect, useState} from "react";
 import DeviceInfo from "../components/DeviceInfo";
-import { AppToaster } from "../components/Toaster";
+import {AppToaster} from "../components/Toaster";
 
-import {
-  Dialog,
-  Button,
-  InputGroup,
-  Intent,
-  Classes,
-  FormGroup,
-  TextArea,
-  Switch
-} from "@blueprintjs/core";
+import {Button, Classes, Dialog, FormGroup, InputGroup, Intent, TextArea} from "@blueprintjs/core";
+import {apiCall} from "../api";
+
+const doDeleteDeviceRequest = (data) => {
+  apiCall("DELETE", "/device", data).then(response => AppToaster.show({
+    message: "Delete device successful",
+    timeout: 1500,
+    intent: "success"
+  })).catch(error => {
+    AppToaster.show({
+      message: "Delete device unsuccessful",
+      timeout: 1500,
+      intent: "danger"
+    })
+    console.log(error)
+  })
+};
 
 const createDeviceInfoComponent = (data) => {
   return (
@@ -20,6 +27,7 @@ const createDeviceInfoComponent = (data) => {
       description={data.description}
       status={data.status}
       name={data.name}
+      handleDelete={() => doDeleteDeviceRequest(data)}
     />
   );
 };
@@ -83,21 +91,42 @@ export default function DeviceController() {
       "status": deviceStatus,
       "description": deviceDescription
     };
-    setDeviceList([...deviceList, createDeviceInfoComponent(newDevice)]);
-    setIsAddingDevice(false);
-    handleClose();
+
+    apiCall("POST", "/device", {
+      "name": deviceName,
+      "status": deviceStatus,
+      "description": deviceDescription
+    }).then((response) => {
+      console.log(response)
+      setDeviceList([...deviceList, createDeviceInfoComponent(newDevice)]);
+      setIsAddingDevice(false);
+      handleClose();
+      AppToaster.show({
+        message: "Created device " + deviceName + "!",
+        intent: Intent.PRIMARY,
+        timeout: 1500
+      });
+    }).catch(error => {
+      AppToaster.show({
+        message: "Can't update new device to database",
+        intent: Intent.WARNING,
+        timeout: 2000
+      });
+      setIsAddingDevice(false);
+      console.log(error)
+    })
   };
 
   return (
     <div className="tab-container">
       {deviceList}
       <div style={{textAlign: "center"}}>
-      <Button 
-        text="Add new device" 
-        intent={Intent.PRIMARY} 
-        onClick={addNewDevice} 
-        large={true}
-      />
+        <Button
+          text="Add new device"
+          intent={Intent.PRIMARY}
+          onClick={addNewDevice}
+          large={true}
+        />
       </div>
 
       <Dialog
@@ -139,21 +168,9 @@ export default function DeviceController() {
             <TextArea
               id="text-input-description"
               placeholder="Description..."
-              style={{ width: "100%" }}
+              style={{width: "100%"}}
               value={deviceDescription}
               onChange={(e) => setDeviceDescription(e.target.value)}
-            />
-          </FormGroup>
-          <FormGroup
-            label="Status"
-            labelFor="switch-input-status"
-            inline={true}
-          >
-            <Switch
-              innerLabelChecked="ON"
-              innerLabel="OFF"
-              checked={deviceStatus === 1}
-              onChange={(e) => setDeviceStatus(1 - deviceStatus)}
             />
           </FormGroup>
         </div>

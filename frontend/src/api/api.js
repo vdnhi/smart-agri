@@ -7,6 +7,7 @@ export function setTokenHeader(token) {
     delete axios.defaults.headers.common["Authorization"];
   }
 }
+
 /**
  * A wrapper around axios API call the formats errors, etc
  * @param {string} method the HTTP verb that you want to use
@@ -15,17 +16,7 @@ export function setTokenHeader(token) {
  */
 export function apiCall(method, path, data) {
   return new Promise((resolve, reject) => {
-    return axios[method.toLowerCase()](path, data, {
-      mode: 'no-cors',
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-      credentials: 'same-origin',
-      crossdomain: true,
-    })
+    return axios[method.toLowerCase()](path, data)
       .then((res) => {
         return resolve(res.data);
       })

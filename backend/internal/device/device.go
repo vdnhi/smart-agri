@@ -31,3 +31,20 @@ func AddDevice(body *io.ReadCloser) (bool, error) {
 	fakeDatabase = append(fakeDatabase, device)
 	return true, nil
 }
+
+func DeleteDevice(body *io.ReadCloser) (bool, error) {
+	var device Info
+	err := json.NewDecoder(*body).Decode(&device)
+	if err != nil {
+		return false, err
+	}
+	for i, d := range fakeDatabase {
+		if d.Id == device.Id {
+			copy(fakeDatabase[i:], fakeDatabase[i+1:])
+			fakeDatabase[len(fakeDatabase)-1] = Info{}
+			fakeDatabase = fakeDatabase[:len(fakeDatabase)-1]
+			return true, nil
+		}
+	}
+	return false, nil
+}

@@ -22,9 +22,9 @@ func setupRoutes(pool *websocket.Pool, mqttClient *MQTT.Client) {
 
 	http.HandleFunc("/device", func(writer http.ResponseWriter, request *http.Request) {
 		reqid, _ := utils.GetRandomClientId()
-		log.Println("reqid=", reqid, "Getting devices list")
 		switch request.Method {
 		case http.MethodGet:
+			log.Println("reqid=", reqid, "Getting devices list")
 			devices := device.GetDevices()
 			encodeJson := json.NewEncoder(writer)
 			err := encodeJson.Encode(devices)
@@ -33,8 +33,18 @@ func setupRoutes(pool *websocket.Pool, mqttClient *MQTT.Client) {
 				return
 			}
 		case http.MethodPost:
+			log.Println("reqid=", reqid, "Updating device to database")
 			ok, err := device.AddDevice(&request.Body)
-			if !ok && err != nil {
+			if !ok || err != nil {
+				http.Error(writer, err.Error(), http.StatusBadRequest)
+				log.Println(err)
+				return
+			}
+			writer.WriteHeader(http.StatusOK)
+		case http.MethodDelete:
+			log.Println("reqid=", reqid, "Deleting device from database")
+			ok, err := device.DeleteDevice(&request.Body)
+			if !ok || err != nil {
 				http.Error(writer, err.Error(), http.StatusBadRequest)
 				log.Println(err)
 				return

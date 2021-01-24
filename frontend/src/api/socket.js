@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:8080/ws");
+const socket = new WebSocket("ws://35.220.237.143:8080/ws");
 
 const connect = cb => {
   console.log("Attempting Connection...");
