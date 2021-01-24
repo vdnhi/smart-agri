@@ -49,10 +49,10 @@ func main() {
 		}
 	}(mqttClient, pool)
 
-	go func(pool *websocket.Pool) {
+	go func(pool *websocket.Pool, mqttClient *MQTT.Client) {
 		defer wg.Done()
-		api.StartWebServer(pool)
-	}(pool)
+		api.StartWebServer(pool, mqttClient)
+	}(pool, mqttClient)
 
 	wg.Wait()
 

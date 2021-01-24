@@ -1,28 +1,8 @@
-const socket = new WebSocket("ws://localhost:8080/ws");
+import { connect, sendMessage } from "./socket";
+import { apiCall } from "./api";
 
-const connect = cb => {
-  console.log("Attempting Connection...");
-
-  socket.onopen = () => {
-    console.log("Successfully Connected");
-  };
-
-  socket.onmessage = message => {
-    cb(message);
-  };
-
-  socket.onclose = event => {
-    console.log("Socket Closed Connection: ", event);
-  };
-
-  socket.onerror = error => {
-    console.log("Socket Error: ", error);
-  };
+export {
+  connect, 
+  sendMessage, 
+  apiCall
 };
-
-const sendMessage = msg => {
-  console.log("Sending message: ", msg);
-  socket.send(msg);
-}
-
-export { connect, sendMessage };
