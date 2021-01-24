@@ -20,6 +20,7 @@ func Setup(clientID, host string, wsClient *websocket.Client) (MQTT.Client, erro
 			return
 		}
 
+		shouldBroadcast = true
 		if shouldBroadcast {
 			wsClient.Pool.Broadcast <- websocket.Message{
 				Type: 2,
